@@ -5,7 +5,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   const [jsonInput, setJsonInput] = useState('');
   const [responseData, setResponseData] = useState(null);
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({
+    Numbers: false,
+    Alphabets: false,
+    'Highest lowercase alphabet': false
+  });
 
   const handleSubmit = async () => {
     try {
@@ -16,27 +20,36 @@ function App() {
     }
   };
 
-  const handleOptionChange = (event) => {
-    const { options } = event.target;
-    const selected = Array.from(options).filter(option => option.selected).map(option => option.value);
-    setSelectedOptions(selected);
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+    setSelectedOptions((prevState) => ({
+      ...prevState,
+      [name]: checked
+    }));
   };
 
   const renderResponse = () => {
     if (!responseData) return null;
-    let dataToShow = {};
 
-    if (selectedOptions.includes('Numbers')) {
-      dataToShow.numbers = responseData.numbers;
-    }
-    if (selectedOptions.includes('Alphabets')) {
-      dataToShow.alphabets = responseData.alphabets;
-    }
-    if (selectedOptions.includes('Highest lowercase alphabet')) {
-      dataToShow.highest_lowercase_alphabet = responseData.highest_lowercase_alphabet;
-    }
-
-    return <pre className="bg-light p-3 rounded border">{JSON.stringify(dataToShow, null, 2)}</pre>;
+    return (
+      <div className="bg-light p-3 rounded border">
+        {selectedOptions.Numbers && responseData.numbers.length > 0 && (
+          <div className="mb-2">
+            <strong>Numbers:</strong> {responseData.numbers.join(', ')}
+          </div>
+        )}
+        {selectedOptions.Alphabets && responseData.alphabets.length > 0 && (
+          <div className="mb-2">
+            <strong>Alphabets:</strong> {responseData.alphabets.join(', ')}
+          </div>
+        )}
+        {selectedOptions['Highest lowercase alphabet'] && responseData.highest_lowercase_alphabet.length > 0 && (
+          <div className="mb-2">
+            <strong>Highest lowercase alphabet:</strong> {responseData.highest_lowercase_alphabet.join(', ')}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -61,18 +74,40 @@ function App() {
 
         {responseData && (
           <div>
-            <label htmlFor="options" className="form-label">Select Data to Display:</label>
-            <select
-              id="options"
-              multiple={true}
-              onChange={handleOptionChange}
-              className="form-select mb-3"
-              size="3"
-            >
-              <option value="Numbers">Numbers</option>
-              <option value="Alphabets">Alphabets</option>
-              <option value="Highest lowercase alphabet">Highest lowercase alphabet</option>
-            </select>
+            <label className="form-label">Select Data to Display:</label>
+            <div className="form-check">
+              <input
+                type="checkbox"
+                id="numbers"
+                name="Numbers"
+                className="form-check-input"
+                checked={selectedOptions.Numbers}
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="numbers" className="form-check-label">Numbers</label>
+            </div>
+            <div className="form-check">
+              <input
+                type="checkbox"
+                id="alphabets"
+                name="Alphabets"
+                className="form-check-input"
+                checked={selectedOptions.Alphabets}
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="alphabets" className="form-check-label">Alphabets</label>
+            </div>
+            <div className="form-check">
+              <input
+                type="checkbox"
+                id="highestLowercaseAlphabet"
+                name="Highest lowercase alphabet"
+                className="form-check-input"
+                checked={selectedOptions['Highest lowercase alphabet']}
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="highestLowercaseAlphabet" className="form-check-label">Highest lowercase alphabet</label>
+            </div>
             {renderResponse()}
           </div>
         )}
